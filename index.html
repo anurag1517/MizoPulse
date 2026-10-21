@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MizoPulse | Mizoram State Sentiment & Public Perception Intelligence</title>
+  <meta name="description" content="Advanced Multi-Source Sentiment Intelligence Tool for Mizoram State. Cross-analyzing social media, government portals, tribal demographics, security forces perceptions, and daily narratives.">
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-logo-wrap">
+          <div class="logo-emblem">
+            <i class="fa-solid fa-mountain-sun"></i>
+          </div>
+          <div>
+            <div class="brand-title">MIZOPULSE <span class="state-badge">MIZORAM</span></div>
+            <div class="brand-subtitle">State & National Sentiment Intelligence Engine</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="live-status-pill">
+          <span class="live-dot pulse"></span>
+          <span>INTELLIGENCE STREAM ACTIVE</span>
+          <span class="divider">|</span>
+          <span class="timestamp-label" id="headerTimestamp">Aizawl Time &bull; Live</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button class="btn-action-outline" id="exportJsonBtn" title="Export current dataset as JSON">
+          <i class="fa-solid fa-file-code"></i> JSON Export
+        </button>
+        <button class="btn-action-outline" id="exportCsvBtn" title="Export Top 10 Narratives as CSV">
+          <i class="fa-solid fa-file-csv"></i> CSV Export
+        </button>
+      </div>
+    </header>
+
+    <!-- MULTI-SOURCE RADAR BAR -->
+    <section class="sources-banner">
+      <div class="sources-label">
+        <i class="fa-solid fa-satellite-dish"></i> Ingestion Sources Monitored:
+      </div>
+      <div class="sources-list-row">
+        <div class="source-badge" title="dipr.mizoram.gov.in, pib.gov.in, police.mizoram.gov.in">
+          <i class="fa-solid fa-building-columns text-blue"></i> State & Central Govt
+        </div>
+        <div class="source-badge" title="@MizoramPolice, @Lalduhoma_CM, @CYMA_Aizawl">
+          <i class="fa-brands fa-x-twitter text-cyan"></i> Twitter / X
+        </div>
+        <div class="source-badge" title="Zonet Cable TV, LPS Vision News, Vanglaini Channel">
+          <i class="fa-brands fa-youtube text-red"></i> Local YouTube
+        </div>
+        <div class="source-badge" title="Vanglaini, The Aizawl Post, Highland Echo, Frontier Despatch">
+          <i class="fa-solid fa-newspaper text-purple"></i> Local Press & News
+        </div>
+        <div class="source-badge" title="Mizoram News Alerts, Border Watch, Student Union MZP">
+          <i class="fa-brands fa-telegram text-teal"></i> Telegram Channels
+        </div>
+        <div class="source-badge" title="Central YMA, Mizo Online Community, DIPR Official">
+          <i class="fa-brands fa-facebook text-blue"></i> Facebook Public Pages
+        </div>
+      </div>
+    </section>
+
+    <!-- GLOBAL FILTER CONTROL PANEL -->
+    <section class="filter-dashboard-panel">
+      <div class="filter-container">
+        <div class="filter-header-row">
+          <div class="filter-title">
+            <i class="fa-solid fa-sliders"></i> Granular Demographic & Source Segmentation
+          </div>
+          <button class="btn-reset-filters" id="resetFiltersBtn">
+            <i class="fa-solid fa-rotate-left"></i> Reset All Filters
+          </button>
+        </div>
+
+        <div class="filter-grid">
+          <!-- Source Filter -->
+          <div class="filter-group">
+            <label for="filterSource"><i class="fa-solid fa-database"></i> Source Platform</label>
+            <select id="filterSource" class="filter-select">
+              <option value="all">All Sources (Govt, X, YT, News, TG, FB)</option>
+              <option value="govt_portals">State & Central Govt Portals</option>
+              <option value="twitter">Twitter / X Verified & Local</option>
+              <option value="youtube">Local YouTube Channels</option>
+              <option value="local_news">Local News & Print Media</option>
+              <option value="telegram">Telegram Public Channels</option>
+              <option value="facebook">Facebook Public Accounts</option>
+            </select>
+          </div>
+
+          <!-- Gender Filter -->
+          <div class="filter-group">
+            <label for="filterGender"><i class="fa-solid fa-venus-mars"></i> Gender Breakdown</label>
+            <select id="filterGender" class="filter-select">
+              <option value="all">All Genders (Male & Female Cross-Cut)</option>
+              <option value="male">Male (50.6% Sample)</option>
+              <option value="female">Female (49.4% Sample)</option>
+            </select>
+          </div>
+
+          <!-- Age Filter -->
+          <div class="filter-group">
+            <label for="filterAge"><i class="fa-solid fa-users-line"></i> Age Tier</label>
+            <select id="filterAge" class="filter-select">
+              <option value="all">All Age Groups (10 to Above 60)</option>
+              <option value="10-18">10 - 18 Years (Adolescents & High School - 14.2%)</option>
+              <option value="18-28">18 - 28 Years (College & Youth Aspirants - 23.5%)</option>
+              <option value="29-35">29 - 35 Years (Young Professionals & Startups - 16.8%)</option>
+              <option value="35-42">35 - 42 Years (Mid-Career & Civic Organizers - 14.1%)</option>
+              <option value="43-50">43 - 50 Years (Established Workforce & Farmers - 12.6%)</option>
+              <option value="51-60">51 - 60 Years (Senior Workforce & Deacons - 9.5%)</option>
+              <option value="above_60">Above 60 Years (Elders & Traditional Councils - 9.3%)</option>
+            </select>
+          </div>
+
+          <!-- Tribe / Community Filter -->
+          <div class="filter-group">
+            <label for="filterTribe"><i class="fa-solid fa-people-roof"></i> Tribe / Community</label>
+            <select id="filterTribe" class="filter-select">
+              <option value="all">All Tribes / Statewide (11 Districts)</option>
+              <option value="lushai">Lushai / Duhlian (67.5%)</option>
+              <option value="lai">Lai (Lawngtlai / LADC - 9.8%)</option>
+              <option value="mara">Mara (Siaha / MADC - 6.2%)</option>
+              <option value="chakma">Chakma (Kamalanagar / CADC - 8.5%)</option>
+              <option value="hmar">Hmar (Sinlung Hills / Sakawrdai - 3.1%)</option>
+              <option value="reang_bru">Bru / Reang (Mamit Belt - 2.4%)</option>
+              <option value="paite_others">Paite, Ralte, Pang & Bawm (2.5%)</option>
+            </select>
+          </div>
+
+          <!-- Date Selector for Narratives -->
+          <div class="filter-group">
+            <label for="filterDate"><i class="fa-solid fa-calendar-day"></i> Narratives Date</label>
+            <input type="date" id="filterDate" class="filter-input-date" value="2026-10-20" min="2026-10-01" max="2026-10-25">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KEY STATS KPI STRIP -->
+    <section class="kpi-strip">
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Net Sentiment Index</span>
+          <span class="kpi-icon"><i class="fa-solid fa-chart-pie"></i></span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-value" id="kpiSentimentIndex">71.2%</span>
+          <span class="kpi-badge badge-positive" id="kpiSentimentStatus">High Positive Trust</span>
+        </div>
+        <div class="kpi-sub">Across 11 districts & 3 ADCs</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Total Ingested Data Points</span>
+          <span class="kpi-icon"><i class="fa-solid fa-comments"></i></span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-value" id="kpiTotalAnalyzed">11,460</span>
+          <span class="kpi-badge badge-neutral">Multi-Platform</span>
+        </div>
+        <div class="kpi-sub">DIPR, X, YT, News, TG, FB</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Favorable / Positive Rate</span>
+          <span class="kpi-icon"><i class="fa-solid fa-heart"></i></span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-value text-pos" id="kpiPositiveRate">71%</span>
+          <span class="kpi-badge badge-positive"><i class="fa-solid fa-arrow-trend-up"></i> Stable</span>
+        </div>
+        <div class="kpi-sub">Community welfare & infra support</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Critical / Deliberation Rate</span>
+          <span class="kpi-icon"><i class="fa-solid fa-triangle-exclamation"></i></span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-value text-crit" id="kpiCriticalRate">13%</span>
+          <span class="kpi-badge badge-critical">FMR / Roads</span>
+        </div>
+        <div class="kpi-sub">Mainly Free Movement & NH-306</div>
+      </div>
+    </section>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="navigation-tabs-bar">
+      <button class="nav-tab-btn active" data-tab="overview">
+        <i class="fa-solid fa-chart-simple"></i> Analytics & Charts
+      </button>
+      <button class="nav-tab-btn" data-tab="narratives">
+        <i class="fa-solid fa-fire"></i> Top 10 Daily Narratives
+      </button>
+      <button class="nav-tab-btn" data-tab="security">
+        <i class="fa-solid fa-shield-halved"></i> Security Forces & Governance Radar
+      </button>
+      <button class="nav-tab-btn" data-tab="tribes">
+        <i class="fa-solid fa-people-group"></i> Tribal Facts & Figures
+      </button>
+      <button class="nav-tab-btn" data-tab="playground">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Mizo/English Sentiment Playground
+      </button>
+      <button class="nav-tab-btn" data-tab="polar-channels">
+        <i class="fa-solid fa-tower-broadcast"></i> Polar Channels & Handles Radar
+      </button>
+      <button class="nav-tab-btn" data-tab="feed">
+        <i class="fa-solid fa-rss"></i> Live Ingestion Feed
+      </button>
+    </nav>
+
+    <!-- TAB 1: OVERVIEW & CHARTS -->
+    <main class="tab-view-content active" id="tab-overview">
+      <div class="charts-grid-layout">
+        <!-- Polarity Donut -->
+        <div class="dashboard-chart-card">
+          <div class="card-title-row">
+            <h3><i class="fa-solid fa-circle-notch"></i> Overall Sentiment Distribution</h3>
+            <span class="badge-tag">Mizoram Wide</span>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="chartPolarityDonut"></canvas>
+          </div>
+          <div class="chart-footer-note">
+            Weighted across State Govt, Social Media, and Press Ingestions.
+          </div>
+        </div>
+
+        <!-- Age Groups Bar Chart -->
+        <div class="dashboard-chart-card">
+          <div class="card-title-row">
+            <h3><i class="fa-solid fa-chart-column"></i> Sentiment by Age Tier (7 Demographic Groups)</h3>
+            <span class="badge-tag">Granular Skew</span>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="chartAgeGroups"></canvas>
+          </div>
+          <div class="chart-footer-note">
+            Granular evaluation across 10-18, 18-28, 29-35, 35-42, 43-50, 51-60, and Above 60.
+          </div>
+        </div>
+
+        <!-- Gender Breakdown Chart -->
+        <div class="dashboard-chart-card">
+          <div class="card-title-row">
+            <h3><i class="fa-solid fa-venus-mars"></i> Gender Sentiment & Volume Comparison</h3>
+            <span class="badge-tag">Male vs Female</span>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="chartGender"></canvas>
+          </div>
+          <div class="chart-footer-note">
+            Female sentiment is slightly more favorable (72.1%) led by health, drug crackdowns & relief.
+          </div>
+        </div>
+
+        <!-- Source Distribution Pie -->
+        <div class="dashboard-chart-card">
+          <div class="card-title-row">
+            <h3><i class="fa-solid fa-layer-group"></i> Data Ingestion by Source Platform</h3>
+            <span class="badge-tag">Volume Share</span>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="chartSources"></canvas>
+          </div>
+          <div class="chart-footer-note">
+            Twitter/X and Facebook lead conversational volume; YouTube has highest engagement depth.
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Highlights Callout -->
+      <div class="insights-summary-banner">
+        <div class="banner-icon"><i class="fa-solid fa-lightbulb"></i></div>
+        <div class="banner-body">
+          <h4>Key State Sentiment Highlights for Mizoram</h4>
+          <p>
+            Public trust in <strong>Mizoram Police</strong> remains high (78.6%) boosted by community-supported narcotics seizures. 
+            Sentiments regarding <strong>Assam Rifles</strong> (63.4%) reflect strong appreciation for local medical and disaster assistance, 
+            balanced against vocal civil opposition to physical Indo-Myanmar border fencing and demands to accelerate headquarters transfer to Zokhawsang. 
+            <strong>Indian Army</strong> enjoys high admiration (77.1%) with heavy youth turnout for Agniveer recruitment.
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 2: TOP 10 DAILY NARRATIVES -->
+    <section class="tab-view-content" id="tab-narratives">
+      <div class="narratives-view-header">
+        <div>
+          <h2><i class="fa-solid fa-fire text-amber"></i> Top 10 Social Media Narratives for Selected Day</h2>
+          <p class="subtitle">Ranked by virality index, cross-platform volume, and societal sentiment impact across Mizoram.</p>
+        </div>
+        <div class="date-indicator">
+          <span>Active Date:</span> <strong id="narrativesActiveDate">October 20, 2026</strong>
+        </div>
+      </div>
+
+      <div class="narratives-list" id="narrativesListContainer">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- TAB 3: SECURITY FORCES & GOVERNANCE PERCEPTION -->
+    <section class="tab-view-content" id="tab-security">
+      <div class="tab-section-header">
+        <h2><i class="fa-solid fa-shield-halved text-cyan"></i> Security Forces & Governance Trust Index</h2>
+        <p class="subtitle">Detailed perception intelligence on Mizoram Police, Assam Rifles, Indian Army, and the State Government.</p>
+      </div>
+
+      <!-- Radar Comparison Chart & Legend -->
+      <div class="security-radar-container">
+        <div class="radar-card">
+          <div class="radar-title">Comparative Trust & Demographic Radar</div>
+          <div class="radar-wrapper">
+            <canvas id="chartSecurityTrust"></canvas>
+          </div>
+        </div>
+        <div class="radar-explainer">
+          <h3>Understanding the Perception Dynamics</h3>
+          <ul class="radar-points">
+            <li>
+              <strong>Assam Rifles:</strong> Respect for border security & civic action programs (CAP), paired with civil society resistance against border fencing separating ethnic Zo relatives.
+            </li>
+            <li>
+              <strong>Mizoram Police:</strong> High community integration with Village Councils (VC) and Young Mizo Association (YMA) during drug crackdowns.
+            </li>
+            <li>
+              <strong>Indian Army:</strong> Deep reverence for national defense; high youth desire for recruitment rallies and officer exam coaching in Aizawl.
+            </li>
+            <li>
+              <strong>State Government:</strong> Strong backing for humanitarian support of displaced Kuki-Zo/Chin refugees and agricultural Minimum Support Price (MSP).
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Detailed Institutional Cards -->
+      <div class="security-cards-grid" id="securityCardsContainer">
+        <!-- Populated dynamically by app.js -->
+      </div>
+
+      <!-- PUBLIC PULSE INTERACTIVE SURVEY MODULE -->
+      <div class="interactive-survey-section">
+        <div class="survey-section-top">
+          <div>
+            <h3><i class="fa-solid fa-square-poll-vertical text-green"></i> Mizoram Public Pulse Interactive Survey</h3>
+            <p>Citizen questions on Assam Rifles, Police, Army, and Government policies. Click any option to simulate your vote and observe real-time score updates.</p>
+          </div>
+        </div>
+
+        <div class="survey-questions-grid" id="surveyQuestionsContainer">
+          <!-- Populated dynamically by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: TRIBAL FACTS & FIGURES -->
+    <section class="tab-view-content" id="tab-tribes">
+      <div class="tab-section-header">
+        <h2><i class="fa-solid fa-people-group text-purple"></i> Facts & Figures as per Various Tribes of Mizoram</h2>
+        <p class="subtitle">Demographic share, regional habitat, literacy rates, governance councils, and specific sentiment drivers for each community.</p>
+      </div>
+
+      <div class="tribal-cards-grid" id="tribalGridContainer">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- TAB 5: MIZO / ENGLISH SENTIMENT PLAYGROUND -->
+    <section class="tab-view-content" id="tab-playground">
+      <div class="tab-section-header">
+        <h2><i class="fa-solid fa-wand-magic-sparkles text-amber"></i> Live Bilingual Sentiment Playground</h2>
+        <p class="subtitle">Test any comment, tweet, or news snippet in English or Mizo Duhlian. Analyzes sentiment polarity, flags institutional entities, and infers demographic alignment.</p>
+      </div>
+
+      <div class="playground-layout">
+        <div class="playground-input-card">
+          <label for="textAnalyzerInput" class="input-label">Enter text, social comment, or paste news snippet:</label>
+          <textarea id="textAnalyzerInput" class="playground-textarea" rows="5" placeholder="Example: Assam Rifles te hian ramri ah damdawi an man hnem hle, an fakawm e... OR Mizoram Police have cracked down heavily on drug syndicates in Kolasib..."></textarea>
+          
+          <div class="sample-chips-row">
+            <span class="sample-title">Click to test samples:</span>
+            <button class="sample-chip" data-sample="Assam Rifles te hian ramri ah damdawi an man hnem hle, an fakawm e. Mahse ramri hung erawh kan duh lo.">
+              AR Border & Fencing (Mizo)
+            </button>
+            <button class="sample-chip" data-sample="Mizoram Police CID Narcotics deserve highest praise for seizing 12kg crystal meth at Vairengte gate.">
+              Police Meth Bust (English)
+            </button>
+            <button class="sample-chip" data-sample="Indian Army mega Agniveer recruitment rally in Lunglei has inspired thousands of Mizo youth to join the armed forces.">
+              Army Agniveer Rally (English)
+            </button>
+            <button class="sample-chip" data-sample="ZPM State Government MSP policy for ginger and turmeric farmers is bringing great economic relief to our rural villages.">
+              State Govt MSP Crop (English)
+            </button>
+            <button class="sample-chip" data-sample="Chakma Autonomous District Council and Mara ADC need more direct development funding for schools and hospitals.">
+              ADC Tribal Funding (English)
+            </button>
+          </div>
+
+          <div class="playground-action-row">
+            <button class="btn-run-analysis" id="btnRunAnalysis">
+              <i class="fa-solid fa-microchip"></i> Run Sentiment Analysis
+            </button>
+          </div>
+        </div>
+
+        <div class="playground-results-wrapper" id="textAnalyzerResults">
+          <div class="analyzer-placeholder">
+            <i class="fa-solid fa-brain"></i>
+            <p>Click "Run Sentiment Analysis" or select a pre-made sample to evaluate sentiment, institutional entities, and demographic predictions.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: POLAR CHANNELS & HANDLES RADAR -->
+    <section class="tab-view-content" id="tab-polar-channels">
+      <div class="tab-section-header">
+        <h2><i class="fa-solid fa-tower-broadcast text-cyan"></i> Direct Social Channels & Polar Thought Radar</h2>
+        <p class="subtitle">Curated live feeds and active handles across Telegram, Twitter / X, YouTube, and Instagram categorized by their distinct geopolitical, civil, and tribal ideological stances.</p>
+      </div>
+
+      <!-- Filter pills for polar view -->
+      <div class="polar-filter-bar">
+        <div class="polar-filter-group">
+          <span class="p-filter-label"><i class="fa-solid fa-filter"></i> Platform:</span>
+          <div class="p-pills-row" id="polarPlatformPills">
+            <button class="p-pill active" data-platform="all">All Platforms</button>
+            <button class="p-pill" data-platform="Telegram"><i class="fa-brands fa-telegram text-cyan"></i> Telegram</button>
+            <button class="p-pill" data-platform="Twitter / X"><i class="fa-brands fa-x-twitter text-cyan"></i> Twitter / X</button>
+            <button class="p-pill" data-platform="YouTube"><i class="fa-brands fa-youtube text-rose"></i> YouTube</button>
+            <button class="p-pill" data-platform="Instagram"><i class="fa-brands fa-instagram text-purple"></i> Instagram</button>
+          </div>
+        </div>
+
+        <div class="polar-filter-group">
+          <span class="p-filter-label"><i class="fa-solid fa-scale-balanced"></i> Polar Stance:</span>
+          <select id="polarStanceSelect" class="filter-select">
+            <option value="all">All Polar Stances</option>
+            <option value="anti-fencing">Pro-FMR / Kinship Solidarity (Anti-Fencing)</option>
+            <option value="pro-fencing">Pro-Fencing / National Security (Central MHA)</option>
+            <option value="ruling-govt">Pro-ZPM Administration (Anti-Corruption & MSP)</option>
+            <option value="opposition-mnf">Pro-MNF Opposition (Mizo Nationalism & Critical)</option>
+            <option value="minority-rights">Minority Autonomy (Chakma CADC & Mara MADC)</option>
+            <option value="mizo-nationalist">Apex Student Vigilance (MZP & Strict ILP)</option>
+            <option value="reformist">Youth Reform & Social Satire</option>
+            <option value="conservative-church">Conservative Church (Synod / Prohibition)</option>
+          </select>
+        </div>
+
+        <div class="polar-search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="polarSearchInput" placeholder="Search handle, channel or topic...">
+        </div>
+      </div>
+
+      <!-- Channel Grid -->
+      <div class="polar-channels-grid" id="polarChannelsContainer">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- TAB 6: LIVE INGESTION STREAM -->
+    <section class="tab-view-content" id="tab-feed">
+      <div class="tab-section-header">
+        <h2><i class="fa-solid fa-rss text-teal"></i> Multi-Source Ingestion Feed</h2>
+        <p class="subtitle">Stream of social posts, press briefs, and government notices captured across DIPR, Twitter/X, YouTube, Telegram, and Facebook.</p>
+      </div>
+
+      <div class="feed-list" id="liveFeedContainer">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <div class="footer-content">
+        <div class="footer-left">
+          <strong>MizoPulse Sentiment Intelligence Platform</strong> &bull; State of Mizoram, India
+          <div class="footer-sub">Covering 11 Districts, 3 Autonomous District Councils (CADC, LADC, MADC), & State Portals</div>
+        </div>
+        <div class="footer-right">
+          <span>Sources: DIPR Mizoram, PIB India, Mizoram Police, Twitter/X, YouTube, Telegram, Facebook Public</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

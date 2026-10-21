@@ -1,0 +1,21 @@
+{
+  "name": "mizoram-sentiment-analyser",
+  "version": "1.0.0",
+  "description": "Comprehensive Sentiment & Public Perception Intelligence Platform for Mizoram State, India",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "mizoram",
+    "sentiment-analysis",
+    "public-pulse",
+    "assam-rifles",
+    "mizoram-police",
+    "tribal-demographics",
+    "narratives"
+  ],
+  "author": "Antigravity AI",
+  "license": "MIT"
+}
