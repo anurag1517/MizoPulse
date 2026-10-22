@@ -20,7 +20,7 @@ const server = http.createServer((req, res) => {
 
   const filePath = path.join(__dirname, reqUrl);
 
-  // Prevent directory traversal
+  // Prevent directory 
   if (!filePath.startsWith(__dirname)) {
     res.writeHead(403, { 'Content-Type': 'text/plain' });
     res.end('403 Forbidden');
